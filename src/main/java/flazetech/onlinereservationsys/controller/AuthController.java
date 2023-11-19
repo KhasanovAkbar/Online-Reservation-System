@@ -4,7 +4,6 @@ import flazetech.onlinereservationsys.dto.LoginDTO;
 import flazetech.onlinereservationsys.dto.UserDTO;
 import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
-import flazetech.onlinereservationsys.service.AuthenticationService;
 import flazetech.onlinereservationsys.service.EmailService;
 import flazetech.onlinereservationsys.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +70,4 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Invalid credentials");
         }
     }
-
-    private void sendActivationEmail(String email) {
-        // Implementation to send activation link to the user's email
-        // You can use JavaMail, an external email service, or any other method based on your project requirements.
-    }
-
-
 }

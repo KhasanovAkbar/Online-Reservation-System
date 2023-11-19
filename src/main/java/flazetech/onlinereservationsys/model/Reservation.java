@@ -1,10 +1,12 @@
 package flazetech.onlinereservationsys.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import flazetech.onlinereservationsys.model.enums.PolandCity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservations")
@@ -19,15 +21,13 @@ public class Reservation {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "from_city")
-    private String fromCity;
+    @Enumerated(EnumType.STRING)
+    private PolandCity fromCity;
 
-    @Column(name = "to_city")
-    private String toCity;
-
-    @Column(name = "bus_service")
-    private String busService;
+    @Enumerated(EnumType.STRING)
+    private PolandCity toCity;
 
     @Column(name = "reservation_date")
-    private Date reservationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime reservationDate;
 }
