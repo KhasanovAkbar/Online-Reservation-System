@@ -1,5 +1,6 @@
 package flazetech.onlinereservationsys.service.impl;
 
+import flazetech.onlinereservationsys.dto.ResponseDTO;
 import flazetech.onlinereservationsys.dto.UserDTO;
 import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
@@ -9,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -34,11 +38,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         // Encode the password before saving it to the database
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
+
 
     @Override
     public User registerUser(UserDTO userDTO) {
@@ -72,8 +77,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void activateUser(String email) {
         //
+        String responseMsg;
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         // Check if the activation link is still valid (not expired)
         LocalDateTime expirationTime = user.getActivationLinkExpiration();
@@ -84,6 +91,22 @@ public class UserServiceImpl implements UserService {
         // Update the user's activation status
         user.setActivationStatus(ActivationStatus.ACTIVATED);
         userRepository.save(user);
+
+    }
+
+    @Override
+    public ResponseDTO saveLoginUser(User user) {
+        //
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        user.setLonginDate(dateFormat.format(date));
+        saveUser(user);
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setUserId(user.getId());
+        responseDTO.setFullName(user.getFullName());
+        responseDTO.setEmail(user.getEmail());
+        responseDTO.setLoginDate(user.getLonginDate());
+        return responseDTO;
     }
 
     private User mapUserDTOToUser(UserDTO userDTO) {
@@ -92,6 +115,10 @@ public class UserServiceImpl implements UserService {
         user.setFullName(userDTO.getFullName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(userDTO.getPassword());
+        user.setLonginDate(userDTO.getLonginDate());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        user.setCreatedDate(dateFormat.format(date));
         return user;
     }
 }

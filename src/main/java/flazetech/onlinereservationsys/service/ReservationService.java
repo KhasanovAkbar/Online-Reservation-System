@@ -3,10 +3,12 @@ package flazetech.onlinereservationsys.service;
 import flazetech.onlinereservationsys.dto.ReservationDTO;
 import flazetech.onlinereservationsys.model.Reservation;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ReservationService {
     //
-    Reservation makeReservation(ReservationDTO reservationDTO);
+    void makeReservation(ReservationDTO reservationDTO);
+
+    List<Reservation> getAllReservations(Long userId);
 
 }

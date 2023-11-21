@@ -1,13 +1,17 @@
 package flazetech.onlinereservationsys.controller;
 
 import flazetech.onlinereservationsys.dto.ReservationDTO;
+import flazetech.onlinereservationsys.helper.APIResponse;
+import flazetech.onlinereservationsys.helper.ResponseBuilder;
+import flazetech.onlinereservationsys.model.Reservation;
 import flazetech.onlinereservationsys.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -17,13 +21,20 @@ public class ReservationController {
     private ReservationService reservationService;
 
     @PostMapping("/reservations")
-    public ResponseEntity<String> makeReservation(@RequestBody ReservationDTO reservationRequest) {
+    public ResponseEntity<APIResponse> makeReservation(@RequestBody ReservationDTO reservationRequest) {
         //
         reservationService.makeReservation(
                 reservationRequest
         );
 
-        return ResponseEntity.ok("Buss successfully reserved");
+        return ResponseBuilder.buildOK("Buss successfully reserved", null, HttpStatus.OK);
+    }
+
+    @GetMapping("/reservations/user/{userId}")
+    public ResponseEntity<APIResponse> getAllReservations(@PathVariable String userId) {
+        //
+        List<Reservation> allReservations = reservationService.getAllReservations(Long.valueOf(userId));
+        return ResponseBuilder.buildOk(Collections.singletonList(allReservations));
     }
 
 }

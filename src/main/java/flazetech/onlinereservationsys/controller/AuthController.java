@@ -1,12 +1,17 @@
 package flazetech.onlinereservationsys.controller;
 
 import flazetech.onlinereservationsys.dto.LoginDTO;
+import flazetech.onlinereservationsys.dto.ResponseDTO;
 import flazetech.onlinereservationsys.dto.UserDTO;
+import flazetech.onlinereservationsys.helper.APIResponse;
+import flazetech.onlinereservationsys.helper.FailureMessage;
+import flazetech.onlinereservationsys.helper.ResponseBuilder;
 import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
 import flazetech.onlinereservationsys.service.EmailService;
 import flazetech.onlinereservationsys.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +27,7 @@ public class AuthController {
     private EmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<APIResponse> registerUser(@RequestBody UserDTO userDTO) {
         //
         User registeredUser = userService.registerUser(userDTO);
 
@@ -31,24 +36,26 @@ public class AuthController {
 
         // Send activation email to the user
         emailService.sendActivationEmail(registeredUser.getEmail(), activationLink);
+        FailureMessage failureMessage = new FailureMessage();
+        failureMessage.setExceptionMessage("Test Register");
+        failureMessage.setExceptionName("Registration Error");
 
-
-        return ResponseEntity.ok("Registration successful! Activation link sent to your email.");
+        return ResponseBuilder.buildOK("Registration successful! Activation link sent to your email.", failureMessage, HttpStatus.OK);
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<String> activateUser(@RequestParam String user, @RequestParam String expire) {
+    public ResponseEntity<APIResponse> activateUser(@RequestParam String user, @RequestParam String expire) {
         // Validate the activation link (check expiration time, etc.)
         // ... (You need to implement this logic)
 
         // Activate the user in the UserService
         userService.activateUser(user);
 
-        return ResponseEntity.ok("Account activated successfully!");
+        return ResponseBuilder.buildOK("Account activated successfully!", null, HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<APIResponse> loginUser(@RequestBody LoginDTO loginDTO) {
         // Retrieve the user by email
 
         User existingUser = userService.findByEmail(loginDTO.getUsername())
@@ -58,16 +65,26 @@ public class AuthController {
         if (userService.checkPassword(loginDTO.getPassword(), existingUser.getPassword())) {
             // Check the activation status
             if (existingUser.getActivationStatus() == ActivationStatus.ACTIVATED) {
-                return ResponseEntity.ok("Login successful!");
-
+                ResponseDTO responseDTO = userService.saveLoginUser(existingUser);
+                return ResponseBuilder.buildOK(responseDTO, null, HttpStatus.OK);
 
             } else if (existingUser.getActivationStatus() == ActivationStatus.PENDING) {
-                return ResponseEntity.badRequest().body("Account not activated. Check your email for activation link.");
+                FailureMessage failureMessage = new FailureMessage();
+                failureMessage.setExceptionMessage("Account not activated. Check your email for activation link.");
+                failureMessage.setExceptionName("Login Error");
+                return ResponseBuilder.buildOK(existingUser, failureMessage, HttpStatus.BAD_REQUEST);
             } else {
-                return ResponseEntity.badRequest().body("Activation link expired. Please register again.");
+                FailureMessage failureMessage = new FailureMessage();
+                failureMessage.setExceptionMessage("Activation link expired. Please register again.");
+                failureMessage.setExceptionName("Login Error");
+                return ResponseBuilder.buildOK(existingUser, failureMessage, HttpStatus.BAD_REQUEST);
+
             }
         } else {
-            return ResponseEntity.badRequest().body("Invalid credentials");
+            FailureMessage failureMessage = new FailureMessage();
+            failureMessage.setExceptionMessage("Invalid credentials");
+            failureMessage.setExceptionName("Login Error");
+            return ResponseBuilder.buildOK(null, failureMessage, HttpStatus.BAD_REQUEST);
         }
     }
 }

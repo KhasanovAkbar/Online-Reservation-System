@@ -8,23 +8,33 @@ import flazetech.onlinereservationsys.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReservationServiceImpl implements ReservationService {
-
+    //
     @Autowired
     ReservationRepository reservationRepository;
 
     @Override
-    public Reservation makeReservation(ReservationDTO reservationDTO) {
+    public void makeReservation(ReservationDTO reservationDTO) {
         //
         Reservation reservation = mapReservationDTOToReservation(reservationDTO);
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+    }
+
+    @Override
+    public List<Reservation> getAllReservations(Long userId) {
+        //
+        return reservationRepository.getAllByUserId(userId);
     }
 
     private Reservation mapReservationDTOToReservation(ReservationDTO reservationDTO) {
         //
         Reservation reservation = new Reservation();
-        reservation.setUserId(reservationDTO.getUserId());
+        reservation.setUserId(Long.valueOf(reservationDTO.getUserId()));
+        reservation.setFirstName(reservationDTO.getFirstName());
+        reservation.setLastName(reservationDTO.getLastName());
         reservation.setFromCity(reservationDTO.getFromCity());
         reservation.setToCity(reservationDTO.getToCity());
         reservation.setReservationDate(reservationDTO.getReservationTime());

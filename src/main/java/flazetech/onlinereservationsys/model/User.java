@@ -19,15 +19,18 @@ public class User {
 
     @Column(name = "full_name")
     private String fullName;
-    
+
     @Column(unique = true)
     private String email;
 
     private String password;
 
+    private String createdDate;
+
+    private String longinDate;
+
     @Column(name = "activation_link_expiration")
     private LocalDateTime activationLinkExpiration;
-
 
     @Enumerated(EnumType.STRING)
     private ActivationStatus activationStatus; // Enum field for activation status
