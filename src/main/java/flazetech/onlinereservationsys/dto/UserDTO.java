@@ -1,5 +1,6 @@
 package flazetech.onlinereservationsys.dto;
 
+import flazetech.onlinereservationsys.model.enums.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,4 +13,6 @@ public class UserDTO {
     private String password;
     private String confirmPassword;
     private String longinDate;
+    private UserStatus status;
+
 }

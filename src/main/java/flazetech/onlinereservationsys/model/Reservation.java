@@ -21,11 +21,9 @@ public class Reservation {
 
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    private PolandCity fromCity;
+    private String fromCity;
 
-    @Enumerated(EnumType.STRING)
-    private PolandCity toCity;
+    private String toCity;
 
     @Column(name = "reservation_date")
     private String reservationDate;

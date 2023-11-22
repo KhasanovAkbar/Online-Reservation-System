@@ -58,8 +58,8 @@ public class UserServiceImpl implements UserService {
         }
         String encode = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encode);
-        // Map UserDTO to User entity
-        User user = mapUserDTOToUser(userDTO);
+        // UserDTO to User entity
+        User user = User.fromDomain(userDTO);
 
         // Save the user after encoding the password and mark as not activated
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -101,6 +101,7 @@ public class UserServiceImpl implements UserService {
         Date date = new Date();
         user.setLonginDate(dateFormat.format(date));
         saveUser(user);
+
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setUserId(user.getId());
         responseDTO.setFullName(user.getFullName());
@@ -109,7 +110,7 @@ public class UserServiceImpl implements UserService {
         return responseDTO;
     }
 
-    private User mapUserDTOToUser(UserDTO userDTO) {
+    /*private User mapUserDTOToUser(UserDTO userDTO) {
         //
         User user = new User();
         user.setFullName(userDTO.getFullName());
@@ -119,6 +120,7 @@ public class UserServiceImpl implements UserService {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         user.setCreatedDate(dateFormat.format(date));
+        user.setStatus(userDTO.getStatus());
         return user;
-    }
+    }*/
 }

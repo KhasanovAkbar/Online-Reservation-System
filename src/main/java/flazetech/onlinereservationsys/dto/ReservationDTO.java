@@ -10,7 +10,7 @@ public class ReservationDTO {
     private String userId;
     private String firstName;
     private String lastName;
-    private PolandCity fromCity;
-    private PolandCity toCity;
+    private String fromCity;
+    private String toCity;
     private String reservationTime;
 }
