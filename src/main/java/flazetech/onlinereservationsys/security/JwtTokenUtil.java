@@ -1,6 +1,5 @@
 package flazetech.onlinereservationsys.security;
 
-import flazetech.onlinereservationsys.dto.LoginDTO;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;

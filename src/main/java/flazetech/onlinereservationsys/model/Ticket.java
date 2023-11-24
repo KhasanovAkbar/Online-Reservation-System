@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -43,5 +46,10 @@ public class Ticket {
         Ticket ticket = new Ticket();
         BeanUtils.copyProperties(ticketDTO, ticket);
         return ticket;
+    }
+
+    public static List<TicketDTO> toDomain(List<Ticket> tickets){
+        //
+        return tickets.stream().map(Ticket::toDomain).collect(Collectors.toList());
     }
 }

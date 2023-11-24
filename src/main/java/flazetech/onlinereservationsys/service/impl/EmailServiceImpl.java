@@ -20,6 +20,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public void sendActivationEmail(String to, String activationLink) {
         //
@@ -38,15 +39,14 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public String generateActivationLink(User user) {
+    public String generateActivationLink(Long id) {
         // You can customize the activation link format as needed
         LocalDateTime expirationTime = LocalDateTime.now().plusHours(24);
         String formattedExpirationTime = expirationTime.format(DateTimeFormatter.ISO_DATE_TIME);
-
+        User user = userRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("User id now found"));
         user.setActivationLinkExpiration(expirationTime);
-
         userRepository.save(user);
-
         return "http://localhost:8080/auth/activate?user=" + user.getEmail() + "&expire=" + formattedExpirationTime;
     }
 }

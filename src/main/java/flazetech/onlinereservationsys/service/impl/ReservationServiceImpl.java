@@ -24,9 +24,10 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> getAllReservations(Long userId) {
+    public List<ReservationDTO> getAllReservations(Long userId) {
         //
-        return reservationRepository.getAllByUserId(userId);
+        List<Reservation> allByUserId = reservationRepository.getAllByUserId(userId);
+        return Reservation.toDomain(allByUserId);
     }
 
     private Reservation mapReservationDTOToReservation(ReservationDTO reservationDTO) {

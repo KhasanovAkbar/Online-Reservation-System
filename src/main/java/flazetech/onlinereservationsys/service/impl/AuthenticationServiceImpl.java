@@ -1,6 +1,6 @@
 package flazetech.onlinereservationsys.service.impl;
 
-import flazetech.onlinereservationsys.dto.LoginDTO;
+import flazetech.onlinereservationsys.dto.request.LoginRequest;
 import flazetech.onlinereservationsys.security.JwtTokenUtil;
 import flazetech.onlinereservationsys.service.AuthenticationService;
 import flazetech.onlinereservationsys.service.UserService;
@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public boolean validateToken(String token, LoginDTO userDetails) {
+    public boolean validateToken(String token, LoginRequest userDetails) {
         //
         final String username = jwtTokenUtil.getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !jwtTokenUtil.isTokenExpired(token));

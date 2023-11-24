@@ -1,7 +1,7 @@
 package flazetech.onlinereservationsys.service.impl;
 
-import flazetech.onlinereservationsys.dto.ResponseDTO;
 import flazetech.onlinereservationsys.dto.UserDTO;
+import flazetech.onlinereservationsys.dto.response.LoginResponse;
 import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
 import flazetech.onlinereservationsys.repository.UserRepository;
@@ -32,15 +32,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        //
-        return userRepository.findById(id);
-    }
-
-    @Override
     public void saveUser(User user) {
-        // Encode the password before saving it to the database
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //
         userRepository.save(user);
     }
 
@@ -58,12 +51,11 @@ public class UserServiceImpl implements UserService {
         }
         String encode = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encode);
+        // Save the user after encoding the password and mark as not activated
+        userDTO.setActivationStatus(ActivationStatus.PENDING); // Set activation status to pending
+
         // UserDTO to User entity
         User user = User.fromDomain(userDTO);
-
-        // Save the user after encoding the password and mark as not activated
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivationStatus(ActivationStatus.PENDING); // Set activation status to pending
 
         return userRepository.save(user);
     }
@@ -79,9 +71,8 @@ public class UserServiceImpl implements UserService {
         //
         String responseMsg;
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        ;
         // Check if the activation link is still valid (not expired)
         LocalDateTime expirationTime = user.getActivationLinkExpiration();
         if (expirationTime == null || expirationTime.isBefore(LocalDateTime.now())) {
@@ -95,32 +86,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDTO saveLoginUser(User user) {
+    public LoginResponse saveLoginUser(Long id) {
         //
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User id not found"));
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         user.setLonginDate(dateFormat.format(date));
         saveUser(user);
 
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setUserId(user.getId());
-        responseDTO.setFullName(user.getFullName());
-        responseDTO.setEmail(user.getEmail());
-        responseDTO.setLoginDate(user.getLonginDate());
-        return responseDTO;
-    }
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUserId(user.getId());
+        loginResponse.setFullName(user.getFullName());
+        loginResponse.setEmail(user.getEmail());
+        loginResponse.setLoginDate(user.getLonginDate());
+        loginResponse.setUserStatus(user.getStatus());
 
-    /*private User mapUserDTOToUser(UserDTO userDTO) {
-        //
-        User user = new User();
-        user.setFullName(userDTO.getFullName());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setLonginDate(userDTO.getLonginDate());
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        user.setCreatedDate(dateFormat.format(date));
-        user.setStatus(userDTO.getStatus());
-        return user;
-    }*/
+        return loginResponse;
+    }
 }

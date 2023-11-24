@@ -8,11 +8,15 @@ import flazetech.onlinereservationsys.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class TicketServiceImpl implements TicketService {
     //
     @Autowired
     TicketRepository ticketRepository;
+
    /* private static final double BASE_PRICE_STANDARD = 50.0;
     private static final double BASE_PRICE_PREMIUM = 100.0;
     private static final double STUDENT_DISCOUNT = 0.2;
@@ -43,20 +47,44 @@ public class TicketServiceImpl implements TicketService {
     }*/
 
     @Override
-    public Ticket createTicket(SeatType seatType, double price) {
+    public TicketDTO getTicketById(Long ticketId) {
         //
-        TicketDTO ticketDTO = new TicketDTO(seatType, price);
-        Ticket ticket = Ticket.fromDomain(ticketDTO);
-        return ticketRepository.save(ticket);
+        return ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found")).toDomain();
+
     }
 
     @Override
-    public Ticket updateTicket(Long ticketId, SeatType seatType, double price) {
+    public TicketDTO createTicket(SeatType seatType, double price) {
+        //
+        TicketDTO ticketDTO = new TicketDTO(seatType, price);
+        Ticket ticket = Ticket.fromDomain(ticketDTO);
+        return ticketRepository.save(ticket).toDomain();
+    }
+
+    @Override
+    public TicketDTO updateTicket(Long ticketId, SeatType seatType, double price) {
+        //
+        Optional<Ticket> optionalTicket = ticketRepository.findById(ticketId);
+        if (optionalTicket.isPresent()) {
+            Ticket ticket = optionalTicket.get();
+            ticket.setSeatType(seatType);
+            ticket.setPrice(price);
+            return ticketRepository.save(ticket).toDomain();
+        }
         return null;
     }
 
     @Override
     public void deleteTicket(Long ticketId) {
+        //
+        ticketRepository.deleteById(ticketId);
+    }
 
+    @Override
+    public List<TicketDTO> getAllTickets() {
+        //
+        List<Ticket> all = ticketRepository.findAll();
+        return Ticket.toDomain(all);
     }
 }

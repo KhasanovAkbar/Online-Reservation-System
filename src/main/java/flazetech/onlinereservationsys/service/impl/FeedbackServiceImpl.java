@@ -16,17 +16,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     public void saveFeedback(FeedbackDTO feedbackDTO) {
         //
-        Feedback feedback = mapFeedbackDTOToFeedback(feedbackDTO);
+        Feedback feedback = Feedback.fromDomain(feedbackDTO);
         feedbackRepository.save(feedback);
-    }
-
-    private Feedback mapFeedbackDTOToFeedback(FeedbackDTO feedbackDTO) {
-        //
-        Feedback feedback = new Feedback();
-        feedback.setName(feedback.getName());
-        feedback.setEmail(feedback.getEmail());
-        feedback.setFeedback(feedback.getFeedback());
-        return feedback;
-
     }
 }

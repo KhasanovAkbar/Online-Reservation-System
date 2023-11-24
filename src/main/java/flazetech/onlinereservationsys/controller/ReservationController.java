@@ -23,17 +23,14 @@ public class ReservationController {
     @PostMapping("/reservations")
     public ResponseEntity<APIResponse> makeReservation(@RequestBody ReservationDTO reservationRequest) {
         //
-        reservationService.makeReservation(
-                reservationRequest
-        );
-
+        reservationService.makeReservation(reservationRequest);
         return ResponseBuilder.buildOK("Buss successfully reserved", null, HttpStatus.OK);
     }
 
     @GetMapping("/reservations/user/{userId}")
     public ResponseEntity<APIResponse> getAllReservations(@PathVariable String userId) {
         //
-        List<Reservation> allReservations = reservationService.getAllReservations(Long.valueOf(userId));
+        List<ReservationDTO> allReservations = reservationService.getAllReservations(Long.valueOf(userId));
         return ResponseBuilder.buildOk(Collections.singletonList(allReservations));
     }
 

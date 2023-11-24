@@ -1,8 +1,8 @@
 package flazetech.onlinereservationsys.controller;
 
-import flazetech.onlinereservationsys.dto.LoginDTO;
-import flazetech.onlinereservationsys.dto.ResponseDTO;
 import flazetech.onlinereservationsys.dto.UserDTO;
+import flazetech.onlinereservationsys.dto.request.LoginRequest;
+import flazetech.onlinereservationsys.dto.response.LoginResponse;
 import flazetech.onlinereservationsys.helper.APIResponse;
 import flazetech.onlinereservationsys.helper.FailureMessage;
 import flazetech.onlinereservationsys.helper.ResponseBuilder;
@@ -32,7 +32,7 @@ public class AuthController {
         User registeredUser = userService.registerUser(userDTO);
 
         // Generate activation link
-        String activationLink = emailService.generateActivationLink(registeredUser);
+        String activationLink = emailService.generateActivationLink(registeredUser.getId());
 
         // Send activation email to the user
         emailService.sendActivationEmail(registeredUser.getEmail(), activationLink);
@@ -55,18 +55,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<APIResponse> loginUser(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<APIResponse> loginUser(@RequestBody LoginRequest loginRequest) {
         // Retrieve the user by email
 
-        User existingUser = userService.findByEmail(loginDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User existingUser = userService.findByEmail(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));;
         // Check if the provided password matches the stored hashed password
-        if (userService.checkPassword(loginDTO.getPassword(), existingUser.getPassword())) {
+        if (userService.checkPassword(loginRequest.getPassword(), existingUser.getPassword())) {
             // Check the activation status
             if (existingUser.getActivationStatus() == ActivationStatus.ACTIVATED) {
-                ResponseDTO responseDTO = userService.saveLoginUser(existingUser);
-                return ResponseBuilder.buildOK(responseDTO, null, HttpStatus.OK);
+                LoginResponse loginResponse = userService.saveLoginUser(existingUser.getId());
+                return ResponseBuilder.buildOK(loginResponse, null, HttpStatus.OK);
 
             } else if (existingUser.getActivationStatus() == ActivationStatus.PENDING) {
                 FailureMessage failureMessage = new FailureMessage();

@@ -5,5 +5,5 @@ import flazetech.onlinereservationsys.model.Feedback;
 
 public interface FeedbackService {
     //
-    void saveFeedback(FeedbackDTO feedback);
+    void saveFeedback(FeedbackDTO feedbackDTO);
 }

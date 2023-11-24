@@ -9,6 +9,6 @@ public interface ReservationService {
     //
     void makeReservation(ReservationDTO reservationDTO);
 
-    List<Reservation> getAllReservations(Long userId);
+    List<ReservationDTO> getAllReservations(Long userId);
 
 }

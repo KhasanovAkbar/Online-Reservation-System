@@ -1,4 +1,4 @@
-package flazetech.onlinereservationsys.dto;
+package flazetech.onlinereservationsys.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class LoginDTO implements UserDetails {
+public class LoginRequest implements UserDetails {
     //
     private String email;
     private String password;
