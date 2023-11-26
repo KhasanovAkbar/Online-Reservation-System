@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -58,8 +60,14 @@ public class AuthController {
     public ResponseEntity<APIResponse> loginUser(@RequestBody LoginRequest loginRequest) {
         // Retrieve the user by email
 
-        User existingUser = userService.findByEmail(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));;
+        Optional<User> byEmail = userService.findByEmail(loginRequest.getUsername());
+        FailureMessage fm = new FailureMessage();
+        fm.setExceptionMessage("User not exist");
+        fm.setExceptionName("Error");
+        if (byEmail.isEmpty()) return ResponseBuilder.buildOK(null, fm, HttpStatus.BAD_REQUEST);
+
+        User existingUser = byEmail
+                .orElseThrow(() -> new RuntimeException("User not exist"));
         // Check if the provided password matches the stored hashed password
         if (userService.checkPassword(loginRequest.getPassword(), existingUser.getPassword())) {
             // Check the activation status
@@ -71,12 +79,12 @@ public class AuthController {
                 FailureMessage failureMessage = new FailureMessage();
                 failureMessage.setExceptionMessage("Account not activated. Check your email for activation link.");
                 failureMessage.setExceptionName("Login Error");
-                return ResponseBuilder.buildOK(existingUser, failureMessage, HttpStatus.BAD_REQUEST);
+                return ResponseBuilder.buildOK(null, failureMessage, HttpStatus.BAD_REQUEST);
             } else {
                 FailureMessage failureMessage = new FailureMessage();
                 failureMessage.setExceptionMessage("Activation link expired. Please register again.");
                 failureMessage.setExceptionName("Login Error");
-                return ResponseBuilder.buildOK(existingUser, failureMessage, HttpStatus.BAD_REQUEST);
+                return ResponseBuilder.buildOK(null, failureMessage, HttpStatus.BAD_REQUEST);
 
             }
         } else {
@@ -85,5 +93,6 @@ public class AuthController {
             failureMessage.setExceptionName("Login Error");
             return ResponseBuilder.buildOK(null, failureMessage, HttpStatus.BAD_REQUEST);
         }
+
     }
 }

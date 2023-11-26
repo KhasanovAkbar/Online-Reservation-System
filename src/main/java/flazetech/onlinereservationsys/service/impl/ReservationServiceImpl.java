@@ -3,43 +3,43 @@ package flazetech.onlinereservationsys.service.impl;
 
 import flazetech.onlinereservationsys.dto.ReservationDTO;
 import flazetech.onlinereservationsys.model.Reservation;
+import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.repository.ReservationRepository;
+import flazetech.onlinereservationsys.repository.UserRepository;
 import flazetech.onlinereservationsys.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
     //
     @Autowired
     ReservationRepository reservationRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public void makeReservation(ReservationDTO reservationDTO) {
         //
-        Reservation reservation = mapReservationDTOToReservation(reservationDTO);
+        Long userId = reservationDTO.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Reservation reservation = Reservation.fromDomain(reservationDTO);
+        reservation.setUser(user);
         reservationRepository.save(reservation);
     }
 
     @Override
-    public List<ReservationDTO> getAllReservations(Long userId) {
+    public Set<Reservation> getAllReservations() {
         //
-        List<Reservation> allByUserId = reservationRepository.getAllByUserId(userId);
-        return Reservation.toDomain(allByUserId);
-    }
+        return new HashSet<>(reservationRepository.findAll());
 
-    private Reservation mapReservationDTOToReservation(ReservationDTO reservationDTO) {
-        //
-        Reservation reservation = new Reservation();
-        reservation.setUserId(Long.valueOf(reservationDTO.getUserId()));
-        reservation.setFirstName(reservationDTO.getFirstName());
-        reservation.setLastName(reservationDTO.getLastName());
-        reservation.setFromCity(reservationDTO.getFromCity());
-        reservation.setToCity(reservationDTO.getToCity());
-        reservation.setReservationDate(reservationDTO.getReservationTime());
-
-        return reservation;
+       /* User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return reservationRepository.getAllByUser(user);*/
     }
 }

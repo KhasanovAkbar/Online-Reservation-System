@@ -23,9 +23,6 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
-
     private String firstName;
 
     private String lastName;
@@ -34,8 +31,15 @@ public class Reservation {
 
     private String toCity;
 
+    @Column(name = "status")
+    private String userStatus;
+
     @Column(name = "reservation_date")
     private String reservationDate;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Reservation(ReservationDTO reservationDTO) {
         //

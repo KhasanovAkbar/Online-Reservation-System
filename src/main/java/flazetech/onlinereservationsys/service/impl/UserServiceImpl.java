@@ -1,7 +1,10 @@
 package flazetech.onlinereservationsys.service.impl;
 
 import flazetech.onlinereservationsys.dto.UserDTO;
+import flazetech.onlinereservationsys.dto.response.AllReservation;
 import flazetech.onlinereservationsys.dto.response.LoginResponse;
+import flazetech.onlinereservationsys.dto.response.ReservationResponse;
+import flazetech.onlinereservationsys.model.Reservation;
 import flazetech.onlinereservationsys.model.User;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
 import flazetech.onlinereservationsys.repository.UserRepository;
@@ -13,7 +16,9 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,11 +57,10 @@ public class UserServiceImpl implements UserService {
         String encode = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encode);
         // Save the user after encoding the password and mark as not activated
-        userDTO.setActivationStatus(ActivationStatus.PENDING); // Set activation status to pending
 
         // UserDTO to User entity
         User user = User.fromDomain(userDTO);
-
+        user.setActivationStatus(ActivationStatus.PENDING); // Set activation status to pending
         return userRepository.save(user);
     }
 
@@ -96,12 +100,40 @@ public class UserServiceImpl implements UserService {
         saveUser(user);
 
         LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setUserId(user.getId());
+        loginResponse.setUserId(String.valueOf(user.getId()));
         loginResponse.setFullName(user.getFullName());
         loginResponse.setEmail(user.getEmail());
         loginResponse.setLoginDate(user.getLonginDate());
-        loginResponse.setUserStatus(user.getStatus());
+        loginResponse.setUserStatus(user.getUserStatus());
 
         return loginResponse;
+    }
+
+    @Override
+    public AllReservation getAllReservationsByUserId(Long userId) {
+        //
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<ReservationResponse> reservations = new ArrayList<>();
+        for (Reservation item : user.getReservations()) {
+            ReservationResponse build = ReservationResponse.builder()
+                    .id(item.getId())
+                    .firstName(item.getFirstName())
+                    .lastName(item.getLastName())
+                    .fromCity(item.getFromCity())
+                    .toCity(item.getToCity())
+                    .reservationTime(item.getReservationDate())
+                    .userStatus(item.getUserStatus())
+                    .build();
+            reservations.add(build);
+
+        }
+
+        return AllReservation.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .status(user.getUserStatus())
+                .reservations(reservations)
+                .build();
     }
 }

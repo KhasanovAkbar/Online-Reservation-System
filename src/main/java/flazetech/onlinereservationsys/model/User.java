@@ -1,8 +1,8 @@
 package flazetech.onlinereservationsys.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import flazetech.onlinereservationsys.dto.UserDTO;
 import flazetech.onlinereservationsys.model.enums.ActivationStatus;
-import flazetech.onlinereservationsys.model.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +26,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "full_name")
@@ -46,22 +48,25 @@ public class User {
     private ActivationStatus activationStatus; // Enum field for activation status
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private String userStatus;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
 
     public User(UserDTO userDTO) {
         //
         BeanUtils.copyProperties(userDTO, this);
     }
 
-    public UserDTO toDomain(){
+    public UserDTO toDomain() {
         //
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(this, userDTO);
         return userDTO;
     }
 
-    public static User fromDomain(UserDTO userDTO){
+    public static User fromDomain(UserDTO userDTO) {
         //
         User user = new User();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
